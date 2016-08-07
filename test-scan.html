@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Bibibuy Scan Test</title>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta http-equiv="x-rim-auto-match" content="none">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://res.wx.qq.com/open/libs/weui/0.4.3/weui.min.css">
+<script src="./lib/jquery/jquery-1.9.0.min.js"></script>
+<script src="./lib/quaggajs/quagga.min.js"></script>
+<style>
+* {font-family:"Helvetica Neue","Hiragino Sans GB","Microsoft YaHei";}
+body {
+      font: 20px Montserrat, sans-serif;
+      line-height: 1.8;
+      color: #f5f6f7;
+  }
+  p {font-size: 16px;}
+  .margin {margin-bottom: 45px;}
+  .bg-1 { 
+      background-color: #1abc9c; /* Green */
+      color: #ffffff;
+  }
+  .bg-2 { 
+      background-color: #474e5d; /* Dark Blue */
+      color: #ffffff;
+  }
+  .bg-3 { 
+      background-color: #ffffff; /* White */
+      color: #555555;
+  }
+  .bg-4 { 
+      background-color: #2f2f2f; /* Black Gray */
+      color: #fff;
+  }
+  .container-fluid {
+      padding-top: 70px;
+      padding-bottom: 70px;
+  }
+  .navbar {
+      padding-top: 15px;
+      padding-bottom: 15px;
+      border: 0;
+      border-radius: 0;
+      margin-bottom: 0;
+      font-size: 12px;
+      letter-spacing: 5px;
+  }
+  .navbar-nav  li a:hover {
+      color: #1abc9c !important;
+  }
+
+</style>
+</head>
+<body>
+<div class="container-fluid bg-1 text-center">
+  <h3 class="margin">
+		<div class="v"></div>
+	</h3>
+</div>
+
+<div class="container-fluid bg-2 text-center">
+  <h3 class="margin">Error Message</h3>
+  <p class="err_msg">No Error Message</p>
+</div>
+
+
+
+<script>
+var state = {
+	inputStream: {
+		name:"Live",
+		type:"LiveStream",
+		target:".v",
+		constraints: {
+			width: 640,
+			height: 480,
+			facingMode: "environment" // or user
+		},
+		singleChannel: false
+	},
+	locator: {
+			patchSize: "medium",
+			halfSample: true
+	},
+	frequency:2,
+	decoder: {
+			readers: [{
+					format: "ean_reader",
+					config: {}
+			}]
+	},
+	locate: true
+}
+				
+$(document).ready(function(){
+	
+	if(Quagga) {
+		console.log('loaded')
+		console.log(Quagga)
+		Quagga.init(state,function(err){
+			if(err) { console.log('err:',err); $(".err_msg").text(err)}
+			Quagga.start()
+			console.log(Quagga)
+		})
+		
+		 Quagga.onProcessed(function(result) {
+        var drawingCtx = Quagga.canvas.ctx.overlay,
+            drawingCanvas = Quagga.canvas.dom.overlay;
+
+        if (result) {
+            if (result.boxes) {
+                drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+                result.boxes.filter(function (box) {
+                    return box !== result.box;
+                }).forEach(function (box) {
+                    Quagga.ImageDebug.drawPath(box, {x: 0, y: 1}, drawingCtx, {color: "green", lineWidth: 2});
+                });
+            }
+
+            if (result.box) {
+                Quagga.ImageDebug.drawPath(result.box, {x: 0, y: 1}, drawingCtx, {color: "#00F", lineWidth: 2});
+            }
+
+            if (result.codeResult && result.codeResult.code) {
+                Quagga.ImageDebug.drawPath(result.line, {x: 'x', y: 'y'}, drawingCtx, {color: 'red', lineWidth: 3});
+            }
+        }
+    });
+
+    Quagga.onDetected(function(result) {
+        var code = result.codeResult.code;
+
+        if (App.lastResult !== code) {
+            App.lastResult = code;
+            var $node = null, canvas = Quagga.canvas.dom.image;
+
+            $node = $('<li><div class="thumbnail"><div class="imgWrapper"><img /></div><div class="caption"><h4 class="code"></h4></div></div></li>');
+            $node.find("img").attr("src", canvas.toDataURL());
+            $node.find("h4.code").html(code);
+            $("#result_strip ul.thumbnails").prepend($node);
+        }
+    });
+		
+	} else {
+		console.log('not loaded yet')
+	}
+	/**
+	$(".in").on("change", function(e) {
+		var path = URL.createObjectURL(e.target.files[0])
+		console.log(path)
+		Quagga.decodeSingle({
+			//readers: ['code_128_reader'],
+			decoder:{
+				readers: ['ean_reader']
+			},
+			locate: true, // try to locate the barcode in the image
+			//src: '/test/fixtures/code_128/image-001.jpg' // or 'data:image/jpg;base64,' + data
+			src:path
+		}, function(result){
+			console.log("console.log om input change:")
+			console.log(result);
+		});
+	});
+	**/
+})
+
+
+</script>
+</body>
+</html>
