@@ -2,7 +2,7 @@
 
 Please prepare your code of the answers with programming language `C#`.
 
-Choose 3 out of the folloiwng 4 questions to answer. 
+Choose 3 out of the following 4 questions to answer. 
 
 ## How To Submit
 
