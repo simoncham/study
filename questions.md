@@ -96,7 +96,7 @@ Now we have the following data in the two tables:
 |A | M| 1|
 |A |X2| 2|
 
-Please write a program to calucate the total material cost of parent item "A".
+Please write a program to calculate the total material cost of parent item "A".
 
 For your reference, the material cost of item "B" is HKD 68.8.
 
